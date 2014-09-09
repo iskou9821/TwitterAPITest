@@ -46,6 +46,32 @@
 	              });
 				};
 				
+				var execCsvQuery = function(txt, cnt, hd, bd, successCallback, failCallback) {
+				    $(".btn").attr("disabled", "disabled");
+					$(".searching-csv").show();
+					var encStr = Base64.encode(txt);
+					$.ajax({
+	                  type : 'POST',
+	                  contentType: "application/json",
+	                  url : "./rest/tweetCsvQuery",
+	                  data : JSON.stringify({
+						queryText : txt,
+						count : cnt,
+						headerText : hd, 
+						tweetParseTemplate : bd
+	                  }),
+	                  dataType : 'text'						
+					}).success(function(data){
+						successCallback(data);
+	                	$(".btn").removeAttr("disabled");
+					    $(".searching-csv").hide();
+					}).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+						failCallback(XMLHttpRequest, textStatus, errorThrown);
+	        	      	$(".btn").removeAttr("disabled");
+					    $(".searching-csv").hide();
+					});
+				};
+				
 				window.App = Ember.Application.create();
 				
 				App.TwQueryResult = Ember.Object.extend({
@@ -68,6 +94,9 @@
 					queryMinId : 0,
 					lastPageFlg : false,
 					includeMax : false,
+					csvHeaderText : 'ID,投稿日時,ユーザー名,内容',
+					csvBodyTemplate : '"${item.id}","${item.createdAt?datetime}","${item.user.name}","${item.text}"',
+					csvQueryCount : 20,
 					actions : {
 						doQuery : function() {
 							var model = this.get('model');
@@ -132,6 +161,29 @@
 							this.set('pageIndex', index);
 							
 							this.send('doQuery');
+						},
+						doDownload : function() {
+							execCsvQuery(
+								this.get('queryText'),
+								this.get('csvQueryCount'),
+								this.get('csvHeaderText'),
+								this.get('csvBodyTemplate'),
+							function(data) {
+								var blob = new Blob([ data ], { "type" : "text/plain;charset=UTF-8" });
+								var items = $("#download-items");
+								$("*", items).remove();
+								
+								var item = $("<a>");
+								item.attr("href", window.URL.createObjectURL(blob));
+								item.attr("target", "_blank");
+								item.attr("download", "query-result.csv");
+								item.text("だうんろーど");
+								
+								items.append(item);
+							},
+							function(a, b, c) {
+								alert("えらーでーす");
+							});
 						}
 					}
 				});
@@ -169,7 +221,12 @@
 				border-color:#d1ffd1
 			}
 			div.searching {
-				white-space: nowrap
+				white-space: nowrap;
+				display:none
+			}
+			div.searching-csv {
+				white-space: nowrap;
+				display:none
 			}
 			h1 {
 				background-color:#7fbfff
@@ -199,24 +256,44 @@
 	<body>
 		<script type="text/x-handlebars" data-template-name="index">
 			<h1>Twitterを検索してCSVにします。</h1>
+
+			<div class="input-area">
+				検索条件:{{input type='text' size='100' value=queryText}}
+				<div class="comment">
+					＊検索条件の設定の仕方は
+					<a href="https://support.twitter.com/groups/31-twitter-basics/topics/110-search/articles/249059-">
+					こちら	
+					</a>
+					を参照して下さい
+				</div>
+			</div>
+
+			<div>
+				ヘッダ：{{textarea cols='100' rows='5' value=csvHeaderText}}
+			</div>
+			<div>
+				データ：{{textarea cols='100' rows='5' value=csvBodyTemplate}}
+			</div>
+			<div>
+				件数：{{input type='text' size='5' value=csvQueryCount}}
+			</div>
+			<button class="btn" {{action 'doDownload'}}>CSV生成開始</button>
+			<div class="searching-csv">
+				<img src="./images/ajax-loader.gif">検索待機な。
+			</div>
+			<div id="download-items"></div>
+
+			<br/><br/>
+			
 			<div class="input-area">
 			検索件数:{{input type='text' size='5' value=queryCount}}
 			</div>
-			<div class="input-area">
-			検索条件:{{input type='text' size='100' value=queryText}}
-			<div class="comment">
-				＊検索条件の設定の仕方は
-				<a href="https://support.twitter.com/groups/31-twitter-basics/topics/110-search/articles/249059-">
-				こちら	
-				</a>
-				を参照して下さい
-			</div>
-			</div>
+			
 			<button class="btn" {{action 'doInitQuery'}}>検索します</button>
 			<br/><br/>
 			<button class="btn" {{action 'doPrev'}}>前のページ</button>
 			<button class="btn" {{action 'doNext'}}>次のページ</button>
-			<div class="searching" style="display:none">
+			<div class="searching">
 				<img src="./images/ajax-loader.gif">検索中なので待つ。
 			</div>			
 			<hr/>
