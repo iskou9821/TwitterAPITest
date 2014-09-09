@@ -1,0 +1,23 @@
+{
+  "name": "twitter-query-test",
+  "version": "0.0.0",
+  "homepage": "https://github.com/iskou9821/TwitterAPITest",
+  "authors": [
+    "iskou9821 <kou.ishikawa@gmail.com>"
+  ],
+  "description": "testing twitter query",
+  "main": "index.html",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "ember": "~1.7.0",
+    "jquery-json": "~2.5.1",
+    "js-base64": "~2.1.5"
+  }
+}
