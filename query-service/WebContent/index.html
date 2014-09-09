@@ -20,76 +20,86 @@
 	<body>
 		<script type="text/x-handlebars" data-template-name="index">
 			<h1>Twitterを検索してCSVにします。</h1>
-
+			
+			<h2>検索条件</h2>
 			<div class="input-area">
-				検索条件:{{input type='text' size='100' value=queryText}}
+				検索条件のテキストを入力
+				<div>{{input type='text' size='100' value=queryText}}</div>
 				<div class="comment">
 					＊検索条件の設定の仕方は
-					<a href="https://support.twitter.com/groups/31-twitter-basics/topics/110-search/articles/249059-">
+					<a target="_blank" href="https://support.twitter.com/groups/31-twitter-basics/topics/110-search/articles/249059-">
 					こちら	
 					</a>
 					を参照して下さい
 				</div>
 			</div>
-
+			
+			<h2>検索プレビュー</h2>
 			<div>
-				ヘッダ：{{textarea cols='100' rows='5' value=csvHeaderText}}
+				<div class="input-area">
+					ページ表示件数:{{input type='text' size='5' value=queryCount}}
+					<button class="btn" {{action 'doInitQuery'}}>検索だ</button>
+				</div>
+				<div class="input-area">
+					<button class="btn" {{action 'doPrev'}}>前のページ</button>
+					<button class="btn" {{action 'doNext'}}>次のページ</button>
+					<div class="searching">
+						<img src="./images/ajax-loader.gif">検索中なので待つ。
+					</div>			
+				</div>
+				<hr/>
+				<div class="content">
+					<table>
+						<tr>
+							<th>id</th>
+							<th>ユーザー名</th>
+							<th>内容</th>
+						</tr>
+						{{#each details}}
+						<tr>
+							<td class="oneline">{{id}}</td>
+							<td class="oneline">{{userName}}</td>
+							<td>{{text}}</td>
+						</tr>
+						{{/each}}
+					</table>
+				</div>
 			</div>
+			
+			<h2>CSV出力</h2>
 			<div>
-				データ：{{textarea cols='100' rows='5' value=csvBodyTemplate}}
-			</div>
-			<div>
-				件数：{{input type='text' size='5' value=csvQueryCount}}
-			</div>
-			<button class="btn" {{action 'doDownload'}}>CSV生成開始</button>
-			<div class="searching-csv">
-				<img src="./images/ajax-loader.gif">検索待機な。
-			</div>
-			<div id="download-items"></div>
-
-			<br/><br/>
-			
-			<div class="input-area">
-			検索件数:{{input type='text' size='5' value=queryCount}}
-			</div>
-			
-			<button class="btn" {{action 'doInitQuery'}}>検索します</button>
-			<br/><br/>
-			<button class="btn" {{action 'doPrev'}}>前のページ</button>
-			<button class="btn" {{action 'doNext'}}>次のページ</button>
-			<div class="searching">
-				<img src="./images/ajax-loader.gif">検索中なので待つ。
-			</div>			
-			<hr/>
-			<div>検索結果:</div>
-			<div class="content">
-				<div>件数:{{count}}</div>
-			</div>
-			
-			<div>CSV</div>
-			<div class="content">
-				<div class="csv-area">
-				ユーザー名,内容<br/>
-				{{#each details}}
-					{{userName}},{{id}}<br/>
-				{{/each}}
-				</div> 
-			</div>
-			
-			<div>テーブル形式:</div>
-			<div class="content">
-			<table>
-				<tr>
-					<th>ユーザー名</th>
-					<th>内容</th>
-				</tr>
-				{{#each details}}
-				<tr>
-					<td>{{userName}}</td>
-					<td>{{text}}</td>
-				</tr>
-				{{/each}}
-			</table>
+				<div class="input-area">
+					ヘッダのテキスト
+					<div>{{textarea cols='100' rows='5' value=csvHeaderText}}</div>
+					<div class="comment">
+						＊ヘッダは固定文字列です。
+					</div>
+				</div>
+				<div class="input-area">
+					出力データのテンプレート
+					<div>{{textarea cols='100' rows='5' value=csvBodyTemplate}}</div>
+					<div class="comment">
+						＊データの書き出しにはFreeMakerをりようしています。<br/>
+						＊書き出しているのは
+						<a target="_blank" href="http://twitter4j.org/javadoc/twitter4j/Status.html">
+							twitter4jのStatus
+						</a>
+						オブジェクトです。<br/>
+						＊FreeMarkerの書式については
+						<a target="_blank" href="http://freemarker.org/docs/">このへん</a>とかに詳細があります。<br/>
+						とりあえず、twitter4jのStatusのリファレンスを見て、定義されているプロパティを<strong>${item.[プロパティ名]}</strong>みたいに書いておけば出力されると思います。
+					</div>
+				</div>
+				<div class="input-area">
+					CSV出力件数
+					<div>{{input type='text' size='5' value=csvQueryCount}}</div>
+				</div>
+				<button class="btn" {{action 'doDownload'}}>CSV生成開始(終了するとリンクが出る)</button>
+				<div class="searching-csv">
+					<img src="./images/ajax-loader.gif">検索待機な。
+				</div>
+				<div id="download-items"></div>
+				<br/><br/><br/><br/><br/>
 			</div>
 		</script>
 	</body>

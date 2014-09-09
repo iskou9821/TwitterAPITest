@@ -7,6 +7,7 @@ div.content {
 	width: 800px;
 }
 div.input-area {
+	padding-left:20px;
 	padding-bottom: 20px;
 }
 div.comment {
@@ -29,8 +30,11 @@ div.searching-csv {
 h1 {
 	background-color: #7fbfff
 }
+h2 {
+	background-color: #d1e8ff	
+}
 table {
-	width: 800px;
+	width: 100%;
 	border-style: solid;
 	border-width: 1px;
 	border-color: #7f7fff;
@@ -41,6 +45,9 @@ td {
 	border-width: 1px;
 	border-color: #89c4ff;
 	background-color: #FFFFFF
+}
+td.oneline {
+	white-space: nowrap
 }
 th {
 	font-weight: normal;

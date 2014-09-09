@@ -66,7 +66,6 @@ $(function() {
 			doPrev : function() {
 				var index = this.get('pageIndex'); index--;
 				if (index < 0 || index > this.get('prevPageTopIds').get('length')) {
-					alert("return");
 					return;
 				}
 				var maxId = this.get('prevPageTopIds').objectAt(index);
