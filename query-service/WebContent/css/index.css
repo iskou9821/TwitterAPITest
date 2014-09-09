@@ -1,0 +1,58 @@
+body {
+	width: 1000px
+}
+div.content {
+	padding-left: 20px;
+	padding-bottom: 30px;
+	width: 800px;
+}
+div.input-area {
+	padding-left:20px;
+	padding-bottom: 20px;
+}
+div.comment {
+	padding-left: 10px;
+	font-size: small
+}
+div.csv-area {
+	border-style: solid;
+	border-width: 1px;
+	border-color: #d1ffd1
+}
+div.searching {
+	white-space: nowrap;
+	display: none
+}
+div.searching-csv {
+	white-space: nowrap;
+	display: none
+}
+h1 {
+	background-color: #7fbfff
+}
+h2 {
+	background-color: #d1e8ff	
+}
+table {
+	width: 100%;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #7f7fff;
+	background-color: #8f8fff
+}
+td {
+	border-style: solid;
+	border-width: 1px;
+	border-color: #89c4ff;
+	background-color: #FFFFFF
+}
+td.oneline {
+	white-space: nowrap
+}
+th {
+	font-weight: normal;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #89c4ff;
+	background-color: #FFFFFF
+}
