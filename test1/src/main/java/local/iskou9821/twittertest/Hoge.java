@@ -20,7 +20,7 @@ public class Hoge {
 			log.info("name:" +user.getName());
 			
 		} catch (TwitterException e) {
-			e.printStackTrace();
+			log.error("ERROR!", e);
 		}
 	}
 }
