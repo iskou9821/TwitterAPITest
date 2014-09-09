@@ -1,6 +1,9 @@
 #Java Class file
 *.class
 
+#ignore setting file including secret keys
+twitter4j.properties
+
 #ignore bundler config.
 /.bundle
 
