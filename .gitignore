@@ -1,4 +1,36 @@
+#Java Class file
 *.class
+
+#ignore bundler config.
+/.bundle
+
+# Ignore the default SQLite database
+./db
+/*.sqlite3
+/db
+/*.sqlite3-journal
+
+# Ignore all logfiles and tempfiles
+./log/
+*.log
+/tmp
+
+#for Eclipse
+bin/
+.project
+.classpath
+.settings/
+
+#for maven
+target/
+
+# Ignore other unneeded files
+.doc/
+*.swp
+*~
+.DS_Store
+.idea
+.secret
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
