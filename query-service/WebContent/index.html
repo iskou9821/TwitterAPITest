@@ -1,0 +1,255 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>Twitterにクエリーを送るよ</title>
+		
+		<script src="./bower_components/jquery/dist/jquery.js"></script>
+		<script src="./bower_components/jquery-json/dist/jquery.json.min.js"></script>
+		<script src="./bower_components/handlebars/handlebars.js"></script>
+		<script src="./bower_components/ember/ember.js"></script>
+		<script src="./bower_components/js-base64/base64.js"></script>		
+		
+		<script type="text/javascript">
+			$(function() {
+				var execQuery = function(txt, cnt, maxId, minId, includeMax, baseCallback, detailCallback, errorCallback) {
+				  $(".btn").attr("disabled", "disabled");
+				  $(".searching").show();
+				  var encStr = Base64.encode(txt);
+	              $.ajax({
+	                  type : 'GET',
+	                  contentType: "application/json",
+	                  url : "./rest/tweetModels" + 
+	                  			"?query-text=" + encStr + 
+	                  			"&query-count="+cnt + 
+	                  			"&query-max-id="+maxId + 
+	                  			"&query-min-id="+minId + 
+	                  			"&include-max-id="+includeMax,
+	                  dataType : 'json'
+	              }).success(function(data) {
+	              	baseCallback(data);
+	              	if (data.details != null) {
+	              		if (data.details instanceof Array) {
+	              			$.each(data.details, function(i, val) {
+	              				detailCallback(val);
+	              			});
+	              		} else {
+	              			detailCallback(data.details);
+	              		}
+	              	}
+	              	$(".btn").removeAttr("disabled");
+				    $(".searching").hide();
+	              }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+	              	errorCallback(XMLHttpRequest, textStatus, errorThrown);
+	              	$(".btn").removeAttr("disabled");
+				    $(".searching").hide();
+	              });
+				};
+				
+				window.App = Ember.Application.create();
+				
+				App.TwQueryResult = Ember.Object.extend({
+					count : null,
+					details : Ember.ArrayProxy.create( { content:[] } )
+				});
+				App.TwQueryResultDetail = Ember.Object.extend({
+					userName : null,
+					text : null
+				});
+				
+				App.IndexController = Ember.ObjectController.extend({
+					queryText : "#njslyr",
+					queryCount : 15,
+					pageTopId : 0,
+					pageLastId : 0,
+					prevPageTopIds : [],
+					pageIndex : 0,
+					queryMaxId : 0,
+					queryMinId : 0,
+					lastPageFlg : false,
+					includeMax : false,
+					actions : {
+						doQuery : function() {
+							var model = this.get('model');
+							var that = this;
+							execQuery(
+								that.get('queryText'), 
+								that.get('queryCount'),
+								that.get('queryMaxId'),
+								that.get('queryMinId'),
+								that.get('includeMax'),
+							function(base) {
+								model.set('count', base.count);
+								model.get('details').clear();
+								that.set('pageTopId', base.pageTopId);
+								that.set('pageLastId', base.pageLastId);
+								that.set('lastPageFlg', base.lastPage == 'true');
+							},
+							function(dt) {
+								var d = App.TwQueryResultDetail.create({
+									id : dt.id,
+									userName : dt.userName,
+									text : dt.text
+								});
+								model.get('details').pushObject(d);
+							},
+							function() {
+								
+							});
+						},
+						doInitQuery : function() {
+							this.set('queryMaxId', 0);
+							this.set('queryMinId', 0);
+							this.set('pageIndex', 0);
+							this.set('includeMax', false);
+							this.get('prevPageTopIds').clear();
+							this.send('doQuery');							
+						},
+						doNext : function() {
+							if (this.get('lastPageFlg') == true) return;
+							var index = this.get('pageIndex');
+							var topId = this.get('pageTopId');
+							this.set('queryMaxId', this.get('pageLastId'));
+							this.set('queryMinId', 0);
+							this.set('includeMax', false);
+							
+							this.get('prevPageTopIds').pushObject(topId);
+							this.set('pageIndex', ++index);
+							
+							this.send('doQuery');
+						},
+						doPrev : function() {
+							var index = this.get('pageIndex'); index--;
+							if (index < 0 || index > this.get('prevPageTopIds').get('length')) {
+								alert("return");
+								return;
+							}
+							var maxId = this.get('prevPageTopIds').objectAt(index);
+							this.set('queryMaxId', maxId);
+							this.set('queryMinId', 0);
+							this.set('includeMax', true);
+							
+							this.set('pageIndex', index);
+							
+							this.send('doQuery');
+						}
+					}
+				});
+				
+				App.IndexRoute = Ember.Route.extend({
+					model : function() {
+						return App.TwQueryResult.create({
+							count : null,
+							details : Ember.ArrayProxy.create( {content : []} )
+						});
+					}
+				});
+			});
+		</script>
+		
+		<style type="text/css" rel="stylesheet">
+			body {
+				width:1000px
+			}
+			div.content {
+				padding-left:20px;
+				padding-bottom:30px;
+				width:800px;
+			}
+			div.input-area {
+				padding-bottom:20px;				
+			}
+			div.comment {
+				padding-left:10px;
+				font-size:small
+			}
+			div.csv-area {
+				border-style:solid;
+				border-width:1px;
+				border-color:#d1ffd1
+			}
+			div.searching {
+				white-space: nowrap
+			}
+			h1 {
+				background-color:#7fbfff
+			}
+			table {
+				width : 800px;
+				border-style: solid;
+				border-width:1px;
+				border-color:#7f7fff;
+				background-color:#8f8fff
+			}
+			td {
+				border-style: solid;
+				border-width:1px;
+				border-color:#89c4ff;
+				background-color:#FFFFFF			
+			}
+			th {
+				font-weight:normal;
+				border-style: solid;
+				border-width:1px;
+				border-color:#89c4ff;
+				background-color:#FFFFFF			
+			}
+		</style>
+	</head>
+	<body>
+		<script type="text/x-handlebars" data-template-name="index">
+			<h1>Twitterを検索してCSVにします。</h1>
+			<div class="input-area">
+			検索件数:{{input type='text' size='5' value=queryCount}}
+			</div>
+			<div class="input-area">
+			検索条件:{{input type='text' size='100' value=queryText}}
+			<div class="comment">
+				＊検索条件の設定の仕方は
+				<a href="https://support.twitter.com/groups/31-twitter-basics/topics/110-search/articles/249059-">
+				こちら	
+				</a>
+				を参照して下さい
+			</div>
+			</div>
+			<button class="btn" {{action 'doInitQuery'}}>検索します</button>
+			<br/><br/>
+			<button class="btn" {{action 'doPrev'}}>前のページ</button>
+			<button class="btn" {{action 'doNext'}}>次のページ</button>
+			<div class="searching" style="display:none">
+				<img src="./images/ajax-loader.gif">検索中なので待つ。
+			</div>			
+			<hr/>
+			<div>検索結果:</div>
+			<div class="content">
+				<div>件数:{{count}}</div>
+			</div>
+			
+			<div>CSV</div>
+			<div class="content">
+				<div class="csv-area">
+				ユーザー名,内容<br/>
+				{{#each details}}
+					{{userName}},{{id}}<br/>
+				{{/each}}
+				</div> 
+			</div>
+			
+			<div>テーブル形式:</div>
+			<div class="content">
+			<table>
+				<tr>
+					<th>ユーザー名</th>
+					<th>内容</th>
+				</tr>
+				{{#each details}}
+				<tr>
+					<td>{{userName}}</td>
+					<td>{{text}}</td>
+				</tr>
+				{{/each}}
+			</table>
+			</div>
+		</script>
+	</body>
+</html>

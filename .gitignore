@@ -7,6 +7,9 @@ twitter4j.properties
 #ignore bundler config.
 /.bundle
 
+# Ignore bower components
+bower_components/
+
 # Ignore the default SQLite database
 ./db
 /*.sqlite3

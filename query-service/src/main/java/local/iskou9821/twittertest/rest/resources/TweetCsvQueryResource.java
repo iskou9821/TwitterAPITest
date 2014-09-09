@@ -1,0 +1,17 @@
+package local.iskou9821.twittertest.rest.resources;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+@Path("/tweetCsvQuery")
+public class TweetCsvQueryResource {
+
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	public String getCsv() {
+		return "text";
+	}
+	
+}
