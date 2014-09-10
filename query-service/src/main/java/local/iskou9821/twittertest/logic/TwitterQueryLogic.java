@@ -42,23 +42,24 @@ public class TwitterQueryLogic {
 		try {
 			QueryResult r = twitter.search(q);
 			StringWriter sw = new StringWriter();
-			PrintWriter pw = new PrintWriter(sw);
-			pw.println(model.getHeaderText());
-			Map<Long, Long> fetchedIds = new HashMap<>();
-			Template tm = getTemplate("tweetParseTemplate", model.getTweetParseTemplate());
-			while (maxCnt > currCnt) {
-				for (Status s : r.getTweets()) {
-					if (fetchedIds.get(s.getId()) == null) {
-						pw.println(parseTweet(s, tm));
-						fetchedIds.put(s.getId(), s.getId());
-						currCnt++;
+			try (PrintWriter pw = new PrintWriter(sw);) {
+				pw.println(model.getHeaderText());
+				Map<Long, Long> fetchedIds = new HashMap<>();
+				Template tm = getTemplate("tweetParseTemplate", model.getTweetParseTemplate());
+				while (maxCnt > currCnt) {
+					for (Status s : r.getTweets()) {
+						if (fetchedIds.get(s.getId()) == null) {
+							pw.println(parseTweet(s, tm));
+							fetchedIds.put(s.getId(), s.getId());
+							currCnt++;
+						}
+						if (currCnt >= maxCnt) break;
 					}
-					if (currCnt >= maxCnt) break;
+					if (!r.hasNext()) break;
+					r = twitter.search(r.nextQuery());
 				}
-				if (!r.hasNext()) break;
-				r = twitter.search(r.nextQuery());
+				return sw.toString();
 			}
-			return sw.toString();
 		} catch (TwitterException e) {
 			throw new IllegalStateException("検索エラー", e);
 		}
